@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import com.kmdkuk.IMyService
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,9 +34,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        nextButton.setOnClickListener {
+            val field_str = editText.text.toString()
+            val lines = field_str.count { it == '\n' } + 1
+            var count = -1
+            val field = Array(lines) {count++;Array(lines) { index ->
+                println(index + (lines+1)*count)
+                val target = field_str[index + (lines+1)*count]
+                if(target == '■'){
+                    1
+                }else if(target == '□') {
+                    0
+                }else{
+                    -1
+                }
+            }
+            }
+            // TODO
+            var result = ""
+            field.forEach {
+                it.forEach {
+                    if (it == 1) {
+                        result = result.plus('■')
+                    } else if (it == 0) {
+                        result = result.plus('□')
+                    }
+                }
+                result = result.plus('\n')
+            }
+            editText.setText(result.toString().removeSuffix("\n"))
+        }
     }
 
     override fun onStart() {
