@@ -7,13 +7,14 @@ import android.content.ServiceConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
+import android.os.RemoteException
 import android.util.Log
 import android.widget.Toast
 import com.kmdkuk.IMyService
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
+    val TAG = "com.kmdkuk.aidl_client.MainActivity"
     var iMyService: IMyService? = null
 
     val mConnection = object : ServiceConnection {
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         // Called when the connection with the service disconnects unexpectedly
         override fun onServiceDisconnected(className: ComponentName) {
-            Log.e("com.kmdkuk.aidl_client.MainActivity", "Service has unexpectedly disconnected")
+            Log.e(TAG, "Service has unexpectedly disconnected")
             iMyService = null
             Toast.makeText(applicationContext, "Service Disconnected", Toast.LENGTH_SHORT)
                 .show()
@@ -53,9 +54,48 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             }
+            var new_field = Array(lines) {Array(lines){0} }
+            field.forEachIndexed { i, ints ->
+                ints.forEachIndexed { j, int ->
+                    val up = if(i == 0){
+                        lines-1
+                    }else{
+                        i-1
+                    }
+                    val down = if(i==lines-1){
+                        0
+                    }else{
+                        i+1
+                    }
+                    val left = if(j == 0){
+                        lines-1
+                    }else{
+                        j-1
+                    }
+                    val right = if(j==lines-1){
+                        0
+                    }else{
+                        j+1
+                    }
+                    println("$i $j")
+                    println("$up $down")
+                    println("$left $right")
+                    val target = intArrayOf(
+                        field[up][left], field[up][j], field[up][right],
+                        field[i][left], int, field[i][right],
+                        field[down][left], field[down][j], field[down][right]
+                    )
+                    try {
+                        new_field[i][j] = iMyService?.new_life(target)!!
+                    }catch (e: RemoteException){
+                        e.printStackTrace()
+                        Log.d(TAG, e.toString())
+                    }
+                }
+            }
             // TODO
             var result = ""
-            field.forEach {
+            new_field.forEach {
                 it.forEach {
                     if (it == 1) {
                         result = result.plus('■')
